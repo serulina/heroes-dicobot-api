@@ -1,11 +1,43 @@
-/tmp
-/out-tsc
+# prod
+dist/
+build/
 
-/node_modules
+# dev
+plans/
+.yarn/
+!.yarn/releases
+.vscode/*
+!.vscode/launch.json
+!.vscode/*.code-snippets
+.idea/
+
+# deps
+node_modules/
+.wrangler/
+
+# env
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+
+# logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/.pnp
-.pnp.js
+pnpm-debug.log*
+lerna-debug.log*
 
-.vscode/*
+# cache
+.cache/
+.turbo/
+.vite/
+.tsbuildinfo
+*.tsbuildinfo
+
+# misc
+.DS_Store
+Thumbs.db

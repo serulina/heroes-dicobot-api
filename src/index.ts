@@ -1,11 +1,8 @@
 import { Hono } from 'hono'
-import { createDb } from './db';
-import { commandLogs } from './db/schema';
+import { createDb } from './core/db';
+import { commandLogs } from './core/db/schema';
 
-type Env = {
-  DB: D1Database;
-};
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.get('/health', (c) => {
   return c.json({ ok: true });
