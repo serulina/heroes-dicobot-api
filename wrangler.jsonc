@@ -11,6 +11,12 @@
 			"migrations_dir": "drizzle/migrations",
 			"remote": false
 		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "CACHE",
+			"id": "db74d64cc0bb450098e0114cc5987deb"
+		}
 	]
 	// "compatibility_flags": [
 	//   "nodejs_compat"

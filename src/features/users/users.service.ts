@@ -1,8 +1,12 @@
 import { AppError } from 'src/core/errors/app-error';
+import { JsonCache } from 'src/core/cache/json-cache';
 import type { NexonOpenApiClient } from 'src/core/nexon-open-api/nexon-open-api.client';
+import type { GetCharacterBasicResponse } from 'src/features/users/dto/response/get-character-basic.response';
 import type { GetCharacterOcidResponse } from 'src/features/users/dto/response/get-character-ocid.response';
 import type { User } from 'src/features/users/entities/users.schema';
 import type { UsersRepository } from 'src/features/users/users.repository';
+
+const CHARACTER_BASIC_CACHE_TTL_SECONDS = 600;
 
 export class UsersValidationError extends AppError {
   constructor(message: string) {
@@ -15,6 +19,7 @@ export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly nexonOpenApiClient: NexonOpenApiClient,
+    private readonly cache?: JsonCache,
   ) {}
 
   async getOrCreateCharacterOcid(gameName: string, characterName: string): Promise<GetCharacterOcidResponse> {
@@ -57,7 +62,27 @@ export class UsersService {
       throw error;
     }
   }
+
+  async getCharacterBasic(gameName: string, characterName: string): Promise<GetCharacterBasicResponse> {
+    const characterOcid = await this.getOrCreateCharacterOcid(gameName, characterName);
+    const cacheKey = createCharacterBasicCacheKey(characterOcid.gameName, characterOcid.ocid);
+    const cachedBasic = await this.cache?.get<GetCharacterBasicResponse>(cacheKey);
+
+    if (cachedBasic) {
+      return cachedBasic;
+    }
+
+    const basic = await this.nexonOpenApiClient.fetchHeroesCharacterBasic(characterOcid.ocid);
+
+    await this.cache?.put(cacheKey, basic, CHARACTER_BASIC_CACHE_TTL_SECONDS);
+
+    return basic;
+  }
 }
+
+const createCharacterBasicCacheKey = (gameName: string, ocid: string): string => {
+  return `${gameName}:character-basic:${ocid}`;
+};
 
 const toGetCharacterOcidResponse = (user: User): GetCharacterOcidResponse => {
   return {

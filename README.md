@@ -75,6 +75,12 @@ wrangler secret put NEXON_OPENAPI_KEY
 
 실제 secret 값은 `wrangler.jsonc`나 소스 코드에 저장하지 않습니다.
 
+## Cloudflare Bindings
+
+- `DB`: 캐릭터 OCID 영구 캐시와 Discord 관련 데이터를 저장하는 D1 데이터베이스입니다.
+- `CACHE`: 단기 캐싱 데이터를 저장하는 KV namespace입니다. 원격 namespace 이름은 `heroes-dicobot-cache`입니다.
+- `NEXON_OPENAPI_KEY`: Nexon OpenAPI 호출에 사용하는 secret입니다.
+
 ## 프로젝트 구조
 
 ```txt
@@ -84,6 +90,8 @@ wrangler secret put NEXON_OPENAPI_KEY
 ├── plans/                             # 로컬 계획 문서, Git 추적 제외
 ├── src/
 │   ├── core/                          # 여러 기능에서 공유하는 공통 모듈
+│   │   ├── cache/                     # KV 기반 JSON 캐시 유틸
+│   │   │   └── json-cache.ts
 │   │   ├── db/                        # D1 + Drizzle 초기화 및 schema export 진입점
 │   │   │   ├── index.ts
 │   │   │   └── schema.ts
@@ -102,6 +110,7 @@ wrangler secret put NEXON_OPENAPI_KEY
 │   │       │   ├── request/
 │   │       │   │   └── get-character-ocid.request.ts
 │   │       │   └── response/
+│   │       │       ├── get-character-basic.response.ts
 │   │       │       └── get-character-ocid.response.ts
 │   │       ├── entities/
 │   │       │   └── users.schema.ts
@@ -118,6 +127,7 @@ wrangler secret put NEXON_OPENAPI_KEY
 ## 구조 규칙
 
 - 공통 인프라와 재사용 모듈은 `src/core` 아래에 둡니다.
+- KV에 JSON 데이터를 저장할 때는 `src/core/cache`의 캐시 유틸을 사용합니다.
 - feature route에서 공통 오류 응답이 필요하면 `src/core/errors`의 변환 유틸을 사용합니다.
 - 도메인별 코드는 `src/features/{domain}` 아래에 둡니다.
 - feature 폴더와 route/service/repository 파일 prefix는 복수형 도메인명을 사용합니다. 예: `users/users.route.ts`
