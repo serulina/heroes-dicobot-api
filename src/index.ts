@@ -1,6 +1,9 @@
+import { Scalar } from '@scalar/hono-api-reference';
 import { Hono } from 'hono'
-import { createDb } from './core/db';
-import { commandLogs } from './core/db/schema';
+import { createDb } from 'src/core/db';
+import { commandLogs } from 'src/core/db/schema';
+import { openApiDocument } from 'src/core/open-api/open-api.document';
+import { usersRoute } from 'src/features/users/users.route';
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -19,8 +22,19 @@ app.get('/db-check', async (c) => {
   });
 });
 
+app.get('/openapi.json', (c) => {
+  return c.json(openApiDocument);
+});
+
+app.get('/docs', Scalar({
+  pageTitle: '히어로즈 디코봇 API 문서',
+  url: '/openapi.json',
+}));
+
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
+
+app.route('/', usersRoute);
 
 export default app

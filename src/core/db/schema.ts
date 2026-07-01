@@ -1,5 +1,7 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
+export { users } from 'src/features/users/entities/users.schema';
+
 export const discordGuilds = sqliteTable('discord_guilds', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   guildId: text('guild_id').notNull().unique(),
